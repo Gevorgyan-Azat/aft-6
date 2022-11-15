@@ -1,7 +1,6 @@
 package framework.steps;
 
 import framework.managers.PageManager;
-import framework.pages.StartPage;
 import framework.pages.blocks.SearchBlock;
 import io.cucumber.java.ru.И;
 

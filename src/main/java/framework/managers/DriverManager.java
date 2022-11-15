@@ -65,28 +65,13 @@ public class DriverManager {
         switch (propBrowserName) {
             case "chrome":
                 System.setProperty("webdriver.chrome.driver", propManager.getProperty(chrome));
-                ChromeOptions options = new ChromeOptions();
-                options.addArguments("--no-sandbox");
-                options.addArguments("--disable-infobars");
-                options.addArguments("--disable-gpu");
-                options.addArguments("--disable-gpu-sandbox");
-                options.addArguments("--disable-dev-shm-usage");
-                options.addArguments("--disable-blink-features");
-                options.addArguments("--disable-blink-features=AutomationControlled");
-                options.setExperimentalOption("useAutomationExtension", false);
-                options.setExperimentalOption("excludeSwitches", Collections.singletonList("enable-automation"));
-                options.addArguments("--disable-extensions");
-                options.addArguments("--disable-popup-blocking");
-                options.addArguments("--profile-directory=Default");
-                options.addArguments("--ignore-certificate-errors");
-                options.addArguments("--disable-plugins-discovery");
-                options.addArguments("--incognito");
-                options.addArguments("user_agent=DN");
-                options.addArguments("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.116 Safari/537.36");
-                options.addArguments("user-data-dir=C:\\Users\\PC\\AppData\\Local\\Google\\Chrome\\User Data");
-                DesiredCapabilities cap = new DesiredCapabilities();
-                cap.setCapability(ChromeOptions.CAPABILITY, options);
-                driver = new ChromeDriver(cap);
+//                ChromeOptions options = new ChromeOptions();
+//                options.setExperimentalOption("useAutomationExtension", false);
+//                options.setExperimentalOption("excludeSwitches", Collections.singletonList("enable-automation"));
+//                options.addArguments("user-data-dir=C:\\Users\\PC\\AppData\\Local\\Google\\Chrome\\User Data");
+//                DesiredCapabilities cap = new DesiredCapabilities();
+//                cap.setCapability(ChromeOptions.CAPABILITY, options);
+                driver = new ChromeDriver();
                 break;
             case "firefox":
                 System.setProperty("webdriver.gecko.driver", propManager.getProperty(gecko));

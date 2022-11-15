@@ -20,12 +20,20 @@ public class BasePage {
         PageFactory.initElements(driverManager.getDriver(), this);
     }
 
-    public SearchBlock getNavigation() {
+    public SearchBlock getSearching() {
         return pageManager.getPage(SearchBlock.class);
     }
 
     protected void scrollElementInCenter(WebElement element) {
         js.executeScript("arguments[0].scrollIntoView({block: 'center'});", element);
+    }
+
+    protected void scrollIntoView(WebElement element) {
+        js.executeScript("arguments[0].scrollIntoView(true);", element);
+    }
+
+    protected void clickOnElement(WebElement element) {
+        js.executeScript("arguments[0].scrollIntoView(true);", element);
     }
 
     protected WebElement waitUtilElementToBeClickable(WebElement element) {
@@ -34,6 +42,19 @@ public class BasePage {
 
     protected WebElement waitUtilElementToBeVisible(WebElement element) {
         return wait.until(ExpectedConditions.visibilityOf(element));
+    }
+
+    protected void waitForJavascript() {
+        double startTime = System.currentTimeMillis();
+        while (System.currentTimeMillis() < startTime + 5000) {
+            String prevState = driverManager.getDriver().getPageSource();
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException ignore) { }
+            if (prevState.equals(driverManager.getDriver().getPageSource())) {
+                return;
+            }
+        }
     }
 
     protected void sendKeyArray(WebElement element, String value) {
