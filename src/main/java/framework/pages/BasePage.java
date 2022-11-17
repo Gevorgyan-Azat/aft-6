@@ -1,8 +1,9 @@
 package framework.pages;
 
+import framework.classes.Basket;
 import framework.managers.DriverManager;
 import framework.managers.PageManager;
-import framework.pages.blocks.SearchBlock;
+import framework.pages.blocks.HeaderBlock;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.PageFactory;
@@ -15,21 +16,23 @@ public class BasePage {
     protected WebDriverWait wait = new WebDriverWait(driverManager.getDriver(), 10, 500);
     protected PageManager pageManager = PageManager.getINSTANCE();
     protected JavascriptExecutor js = (JavascriptExecutor) driverManager.getDriver();
+    protected Basket basket = Basket.getINSTANCE();
 
     protected BasePage() {
         PageFactory.initElements(driverManager.getDriver(), this);
     }
 
-    public SearchBlock getSearching() {
-        return pageManager.getPage(SearchBlock.class);
+    public HeaderBlock getSearching() {
+        return pageManager.getPage(HeaderBlock.class);
     }
 
     protected void scrollElementInCenter(WebElement element) {
         js.executeScript("arguments[0].scrollIntoView({block: 'center'});", element);
     }
 
-    protected void scrollIntoView(WebElement element) {
-        js.executeScript("arguments[0].scrollIntoView(true);", element);
+    protected void scrollAndClick(WebElement element) {
+        scrollElementInCenter(element);
+        waitUtilElementToBeClickable(element).click();
     }
 
     protected void clickOnElement(WebElement element) {

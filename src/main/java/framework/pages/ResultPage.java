@@ -7,7 +7,6 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -29,6 +28,25 @@ public class ResultPage extends BasePage {
     @FindBy(xpath = "//div[@class='left-filters__buttons-main']")
     private WebElement leftFiltersButtonsBlock;
 
+    @FindBy(xpath = "//button[@class='pagination-widget__show-more-btn']")
+    private WebElement showMoreButton;
+
+    @FindBy(xpath = "//div[@data-id='product']")
+    private List<WebElement> productBlockList;
+
+    @FindBy(xpath = "//li[contains(@class, 'pagination-widget__page_active')]")
+    private WebElement activePage;
+
+    @FindBy(xpath = "//div[@class='cart-modal']")
+    private WebElement basketBlock;
+
+    @FindBy(xpath = "//nav[@id='header-search']//span[@class='cart-link__badge']")
+    private WebElement amountProductsInBasket;
+
+
+    private static int counter = 1;
+    private static int page = 1;
+
     {
         loadingFilterBlocks();
     }
@@ -49,6 +67,51 @@ public class ResultPage extends BasePage {
         }
     }
 
+    public void addProductsInBasket(int expectedAmountProducts) {
+        for (int i = counter; i < productBlockList.size(); i += 2) {
+            if (basket.getProducts().size() < expectedAmountProducts) {
+                try {
+                    clickBuyBtn(productBlockList.get(i));
+                    basket.setProducts(getProductName(productBlockList.get(i)), getProductPrice(productBlockList.get(i)), 1);
+                    counter += 2;
+                    Assert.assertEquals("Неверное количество товара в корзине",
+                            basket.getProducts().size(), Integer.parseInt(amountProductsInBasket.getText()));
+                } catch (NoSuchElementException ignore) {
+                }
+            } else if (basket.getProducts().size() == expectedAmountProducts) {
+                return;
+            }
+        }
+        if (basket.getProducts().size() < expectedAmountProducts) {
+            try {
+                ++page;
+                scrollAndClick(showMoreButton);
+                wait.until(ExpectedConditions.attributeToBe(activePage, "textContent", String.valueOf(page)));
+                addProductsInBasket(expectedAmountProducts);
+            } catch (NoSuchElementException ignore) {
+                Assert.fail("Не удалось добавить указанное количество товаров в корзину.\n"
+                        + "Страниц пройдено: " + --page + "\n"
+                        + "Товаров добавлено: " + basket.getProducts().size());
+            }
+        }
+    }
+
+    private String getProductName(WebElement element) {
+        return element.findElement(By.xpath(".//a[contains(@class, 'catalog-product__name')]/span")).getText();
+    }
+
+    private int getProductPrice(WebElement element) {
+        return Integer.parseInt(element.findElement(By.xpath(".//div[@class='product-buy__price product-buy__price_active']"))
+                .getAttribute("textContent").split("₽")[0].replaceAll("\\D", ""));
+    }
+
+    private void clickBuyBtn(WebElement element) {
+        WebElement buyBtn = element.findElement(By.xpath(".//button[contains(@class, 'buy-btn')]"));
+        scrollAndClick(buyBtn);
+        wait.until(ExpectedConditions.textToBePresentInElement(buyBtn, "В корзине"));
+        wait.until(ExpectedConditions.attributeToBe(basketBlock, "display", "none"));
+    }
+
     private WebElement selectFilterBlock(String filterBlockName) {
         if (filterBlockName.equals("*")) {
             return leftFilters;
@@ -57,8 +120,7 @@ public class ResultPage extends BasePage {
             if (filterBlock.getAttribute("textContent").contains(filterBlockName)) {
                 if (!filterBlock.getAttribute("class").equals("left-filters-toggle") &&
                         !filterBlock.findElement(By.xpath("./a")).getAttribute("class").contains("link_in")) {
-                    scrollElementInCenter(filterBlock.findElement(By.xpath("./a")));
-                    filterBlock.findElement(By.xpath("./a")).click();
+                    scrollAndClick(filterBlock.findElement(By.xpath("./a")));
                     wait.until(ExpectedConditions.attributeContains(filterBlock.findElement(By.xpath("./a")), "class", "link_in"));
                     Assert.assertTrue("Не удалось раскрыть блок фильтра под названием '" + filterBlockName + "'",
                             filterBlock.findElement(By.xpath("./a")).getAttribute("class").contains("link_in"));
@@ -78,48 +140,30 @@ public class ResultPage extends BasePage {
                 try {
                     checkBox.findElement(By.cssSelector(".ui-checkbox__input:checked"));
                     if (!expectedStatus) {
-                        scrollAndClickCheckBox(checkBox);
+                        scrollAndClick(checkBox);
+                        applyFilterParam();
                         return;
                     }
                 } catch (NoSuchElementException ignore) {
                     if (expectedStatus) {
-                        scrollAndClickCheckBox(checkBox);
+                        scrollAndClick(checkBox);
+                        applyFilterParam();
                         return;
                     }
                 }
-                return;
             }
         }
-    }
-
-    private void checkPickedFilterValueForCheckbox(String checkBoxName, String expectedValue) {
-        if (Boolean.parseBoolean(expectedValue)) {
-            try {
-                driverManager.getDriver().findElement(By.xpath(String.format("//div[@class='top-filters']//div[@class='picked-filter' and contains(., '%s')]", checkBoxName)));
-            } catch (NoSuchElementException ignore) {
-                Assert.fail("Результат поиска не отфильтрован по checkbox '" + checkBoxName + "'");
-            }
-        }
-
-    }
-
-    private void scrollAndClickCheckBox(WebElement element) {
-        scrollElementInCenter(element);
-        waitUtilElementToBeClickable(element).click();
-        waitUtilElementToBeVisible(displayBtn);
-        waitUtilElementToBeClickable(displayBtn).click();
+        Assert.fail("Не удалось найти поле '" + checkBoxName + "'");
     }
 
     private void changeFieldValue(WebElement element, String fieldName, String value) {
         List<WebElement> fieldsList = element.findElements(By.xpath(".//input[@placeholder]"));
         for (WebElement field : fieldsList) {
             if (field.getAttribute("placeholder").contains(fieldName)) {
-                scrollElementInCenter(field);
-                waitUtilElementToBeClickable(field).click();
+                scrollAndClick(field);
                 field.clear();
                 field.sendKeys(value);
-                waitUtilElementToBeVisible(displayBtn);
-                waitUtilElementToBeClickable(displayBtn).click();
+                applyFilterParam();
                 return;
             }
         }
@@ -134,11 +178,27 @@ public class ResultPage extends BasePage {
         }
     }
 
+    private void checkPickedFilterValueForCheckbox(String checkBoxName, String expectedValue) {
+        if (Boolean.parseBoolean(expectedValue)) {
+            try {
+                driverManager.getDriver().findElement(By.xpath(String.format("//div[@class='top-filters']//div[@class='picked-filter' and contains(., '%s')]", checkBoxName)));
+            } catch (NoSuchElementException ignore) {
+                Assert.fail("Результат поиска не отфильтрован по checkbox '" + checkBoxName + "'");
+            }
+        }
+
+    }
+
+    private void applyFilterParam() {
+        waitUtilElementToBeVisible(displayBtn);
+        waitUtilElementToBeClickable(displayBtn).click();
+    }
+
     private void loadingFilterBlocks() {
         waitForJavascript();
-        for (int i = 0; i < filterBlocksList.size() - 1; i+=2) {
-            List<WebElement> filterBlocks = new ArrayList<>(filterBlocksList);
-            scrollElementInCenter(filterBlocks.get(i));
+        for (int i = 0; i < filterBlocksList.size() - 1; i++) {
+            //List<WebElement> filterBlocks = new ArrayList<>(filterBlocksList);
+            scrollElementInCenter(filterBlocksList.get(i));
         }
         scrollElementInCenter(leftFiltersButtonsBlock);
         scrollElementInCenter(topBlock);
