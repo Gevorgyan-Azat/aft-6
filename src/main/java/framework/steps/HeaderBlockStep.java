@@ -9,7 +9,7 @@ public class HeaderBlockStep {
     PageManager pageManager = PageManager.getINSTANCE();
 
     @И("^Поиск продукта по запросу '(.+)'")
-    public void searching(String searchValue){
+    public void searching(String searchValue) {
         pageManager.getPage(HeaderBlock.class).search(searchValue);
     }
 

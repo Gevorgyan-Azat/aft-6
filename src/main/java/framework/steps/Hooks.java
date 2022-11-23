@@ -10,13 +10,14 @@ import io.cucumber.java.Before;
 public class Hooks {
 
     @Before
-    public void before(){
+    public void before() {
         InitManager.initFramework();
         DriverManager.getINSTANCE().getDriver().get(TestPropManager.getINSTANCE().getProperty(PropConst.BASE_URL));
     }
 
     @After
-    public void after(){
-//        InitManager.quitFramework();
+    public void after() {
+        InitManager.quitFramework();
     }
+
 }

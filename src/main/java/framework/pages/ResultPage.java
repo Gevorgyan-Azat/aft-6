@@ -7,9 +7,9 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-
 
 public class ResultPage extends BasePage {
 
@@ -45,7 +45,6 @@ public class ResultPage extends BasePage {
 
 
     private static int counter = 1;
-    private static int page = 1;
 
     {
         loadingFilterBlocks();
@@ -68,25 +67,28 @@ public class ResultPage extends BasePage {
     }
 
     public void addProductsInBasket(int expectedAmountProducts) {
+        waitForJavascript();
         for (int i = counter; i < productBlockList.size(); i += 2) {
             if (basket.getProducts().size() < expectedAmountProducts) {
                 try {
                     clickBuyBtn(productBlockList.get(i));
                     basket.setProducts(getProductName(productBlockList.get(i)), getProductPrice(productBlockList.get(i)), 1);
-                    counter += 2;
-                    Assert.assertEquals("Неверное количество товара в корзине",
-                            basket.getProducts().size(), Integer.parseInt(amountProductsInBasket.getText()));
+                    gson.writeJson(basket.getProducts().get(basket.getProducts().size()-1));
                 } catch (NoSuchElementException ignore) {
                 }
+                counter += 2;
+                Assert.assertEquals("Неверное количество товара в корзине",
+                        basket.getProducts().size(), Integer.parseInt(amountProductsInBasket.getText()));
             } else if (basket.getProducts().size() == expectedAmountProducts) {
+                counter = 1;
                 return;
             }
         }
         if (basket.getProducts().size() < expectedAmountProducts) {
+            int page = Integer.parseInt(activePage.getAttribute("textContent"));
             try {
-                ++page;
                 scrollAndClick(showMoreButton);
-                wait.until(ExpectedConditions.attributeToBe(activePage, "textContent", String.valueOf(page)));
+                wait.until(ExpectedConditions.attributeToBe(activePage, "textContent", String.valueOf(++page)));
                 addProductsInBasket(expectedAmountProducts);
             } catch (NoSuchElementException ignore) {
                 Assert.fail("Не удалось добавить указанное количество товаров в корзину.\n"
@@ -97,7 +99,7 @@ public class ResultPage extends BasePage {
     }
 
     private String getProductName(WebElement element) {
-        return element.findElement(By.xpath(".//a[contains(@class, 'catalog-product__name')]/span")).getText();
+        return element.findElement(By.xpath(".//a[contains(@class, 'catalog-product__name')]/span")).getText().split(" \\[")[0];
     }
 
     private int getProductPrice(WebElement element) {
@@ -197,8 +199,8 @@ public class ResultPage extends BasePage {
     private void loadingFilterBlocks() {
         waitForJavascript();
         for (int i = 0; i < filterBlocksList.size() - 1; i++) {
-            //List<WebElement> filterBlocks = new ArrayList<>(filterBlocksList);
-            scrollElementInCenter(filterBlocksList.get(i));
+            List<WebElement> filterBlocks = new ArrayList<>(filterBlocksList);
+            scrollElementInCenter(filterBlocks.get(i));
         }
         scrollElementInCenter(leftFiltersButtonsBlock);
         scrollElementInCenter(topBlock);

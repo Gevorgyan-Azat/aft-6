@@ -1,9 +1,11 @@
 package framework.pages;
 
 import framework.classes.Basket;
+import framework.classes.Product;
 import framework.managers.DriverManager;
 import framework.managers.PageManager;
 import framework.pages.blocks.HeaderBlock;
+import framework.utils.GsonSerial;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.PageFactory;
@@ -17,6 +19,7 @@ public class BasePage {
     protected PageManager pageManager = PageManager.getINSTANCE();
     protected JavascriptExecutor js = (JavascriptExecutor) driverManager.getDriver();
     protected Basket basket = Basket.getINSTANCE();
+    protected GsonSerial gson = new GsonSerial();
 
     protected BasePage() {
         PageFactory.initElements(driverManager.getDriver(), this);

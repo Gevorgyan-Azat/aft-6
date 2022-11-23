@@ -1,0 +1,48 @@
+{
+  "maxPriceProduct": {
+    "name": "6.7\" Смартфон Apple iPhone 13 Pro Max 256 ГБ голубой",
+    "price": 104399
+  },
+  "products": [
+    {
+      "name": "6.1\" Смартфон Apple iPhone 13 128 ГБ белый",
+      "price": 66099
+    },
+    {
+      "name": "6.7\" Смартфон Apple iPhone 13 Pro Max 256 ГБ голубой",
+      "price": 104399
+    },
+    {
+      "name": "6.1\" Смартфон Apple iPhone 13 Pro 128 ГБ голубой",
+      "price": 87699
+    },
+    {
+      "name": "6.7\" Смартфон Apple iPhone 13 Pro Max 256 ГБ зеленый",
+      "price": 104399
+    },
+    {
+      "name": "6.7\" Смартфон Apple iPhone 13 Pro Max 128 ГБ зеленый",
+      "price": 93599
+    },
+    {
+      "name": "6.1\" Смартфон Apple iPhone 11 64 ГБ черный",
+      "price": 43199
+    },
+    {
+      "name": "6.7\" Смартфон Apple iPhone 13 Pro Max 128 ГБ голубой",
+      "price": 93599
+    },
+    {
+      "name": "6.1\" Смартфон Apple iPhone 13 128 ГБ синий",
+      "price": 66099
+    },
+    {
+      "name": "6.1\" Смартфон Apple iPhone 11 128 ГБ белый",
+      "price": 48999
+    },
+    {
+      "name": "6.1\" Смартфон Apple iPhone 11 128 ГБ черный",
+      "price": 48999
+    }
+  ]
+}

@@ -1,7 +1,5 @@
 package framework.managers;
 
-import org.openqa.selenium.chrome.ChromeOptions;
-
 import java.util.concurrent.TimeUnit;
 
 import static framework.utils.PropConst.IMPLICITLY_WAIT;
